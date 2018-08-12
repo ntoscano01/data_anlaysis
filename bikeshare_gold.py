@@ -4,11 +4,10 @@ Created on Sat Aug 11 18:11:09 2018
 
 @author: Nick
 """
-
 import time
 import pandas as pd
 import numpy as np
-import datetime as dt
+import json
 
 ## Filenames
 #chicago = 'chicago.csv'
@@ -28,7 +27,7 @@ def get_filters():
     # get user input for city (chicago, new york city, washington). HINT: Use a while loop to handle invalid inputs
     while True:
         city = input(str('\nWhich city would you like to see data on?\n'
-                        '\nNew York City, Chicago, or Washington?\n '))
+                        '\nNew York City, Chicago, or Washington\n '))
         if city in('washington', 'chicago', 'new york city'):
             break
         elif city == 'new york':
@@ -121,24 +120,30 @@ def time_stats(df):
 #-----------------------------------------------------------------------------------------------------------------------------------    
     
 def station_stats(df):
+      
     """Displays statistics on the most popular stations and trip."""
  
-    print('\nCalculating The Most Popular Stations and Trip...\n')
-    start_time = time.time()
- 
-    # display most commonly used start station
-    popular_start_station = df['Start Station'].mode()[0]
-    print("The most commonly used starting station for bikeshares was " + popular_start_station + ".\n")
- 
-    # display most commonly used end station
-    popular_end_station = df['End Station'].mode()[0]
-    print("The most commonly used ending station for bikeshares was " + popular_end_station + ".\n")
- 
-    #  display most frequent combination of start station and end station trip
-    df['Station Combo'] = df['Start Station'] + " | " + df['End Station']
-    popular_station_combo = df['Station Combo'].mode()[0]
-    print("The most commonly used combination of starting and ending stations was " + popular_station_combo + ".\n")
- 
+    print('\nCalculating Trip Duration...\n')
+    start_time = time.time()    
+    
+    row_length = df.shape[0]
+
+    # iterate from 0 to the number of rows in steps of 5
+    for i in range(0, row_length, 5):
+        
+        yes = input('\nWould you like to examine the particular user trip data? Type \'yes\' or \'no\'\n> ')
+        if yes.lower() != 'yes':
+            break
+        
+        # retrieve and convert data to json format
+        # split each json row data 
+        row_data = df.iloc[i: i + 5].to_json(orient='records', lines=True).split('\n')
+        for row in row_data:
+            # pretty print each user data
+            parsed_row = json.loads(row)
+            json_row = json.dumps(parsed_row, indent=2)
+            print(json_row)
+            
     print("\nThis took %s seconds." % (time.time() - start_time))
     print('-'*40)
     
@@ -163,7 +168,30 @@ def trip_duration_stats(df):
  
     print("\nThis took %s seconds." % (time.time() - start_time))
     print('-'*40)
+
+#-----------------------------------------------------------------------------------------------------------------------------------    
+
+def display_data(df, current_line):
     
+    print('\nPreparing individual trip data...\n')
+    start_time = time.time()
+    
+    display = input('\nWould you like to view individual trip data?'
+                    ' Type \'yes\' or \'no\'.\n')
+    display = display.lower(df)
+    if display == 'yes' or display == 'y':
+        print(df.iloc[current_line:current_line+5])
+        current_line += 5
+        return display_data(df, current_line)
+        if display == 'no' or display == 'n':
+            return
+    else:
+        print("\nI'm sorry, I'm not sure if you wanted to see more data or not. Let's try again.")
+        return display_data(df, current_line)
+                    
+    print("\nThis took %s seconds." % (time.time() - start_time))
+    print('-'*40)
+
 #-----------------------------------------------------------------------------------------------------------------------------------
     
 def user_stats(df, city):

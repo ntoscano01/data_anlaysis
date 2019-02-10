@@ -1,6 +1,5 @@
 install.packages("moments")
-# IST 687 - Applied Data Science
-# Homework 4
+
 # Step 1: Write a summarizing function to undersand the distribution of a vector
 # Question 1 and 2
 printVecInfo <- function(v){

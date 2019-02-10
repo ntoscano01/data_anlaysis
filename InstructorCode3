@@ -1,0 +1,81 @@
+
+# Step 1 and 2
+
+readStates<-function(){
+  urlToRead <- "http://www2.census.gov/programs-surveys/popest/tables/2010-2011/state/totals/nst-est2011-01.csv"
+  testFrame <- read.csv(url(urlToRead))
+  # Eliminate header rows
+  testFrame <- testFrame[-1:-2,]
+  # Eliminate unnecessary tail rows
+  testFrame <- testFrame[-58:-66,]
+  # Rename Rows and Columns
+  colnames(testFrame)[1] <- "stateName"
+  colnames(testFrame)[2] <- "base2010"
+  colnames(testFrame)[3] <- "base2011"
+  colnames(testFrame)[4] <- "Jul2010"
+  colnames(testFrame)[5] <- "Jul2011"
+  testFrame <- testFrame[-1:-6,]
+  # Remove unnecessary columns
+  testFrame <- testFrame[,-6:-10]
+ 
+  # Eliminate periods in state names
+  testFrame$stateName <- gsub("\\.","",testFrame$stateName)
+  # Clean up population data (remove commas)
+  testFrame$base2010 <- gsub(",", "", testFrame$base2010)
+  testFrame$base2011 <- gsub(",", "", testFrame$base2011)
+  testFrame$Jul2010 <- gsub(",", "", testFrame$Jul2010)
+  testFrame$Jul2011 <- gsub(",", "", testFrame$Jul2011)
+  #mConvert values to numbers
+  testFrame$base2010 <- as.numeric(testFrame$base2010)
+  testFrame$base2011 <- as.numeric(testFrame$base2011)
+  testFrame$Jul2010 <- as.numeric(testFrame$Jul2010)
+  testFrame$Jul2011 <- as.numeric(testFrame$Jul2011)
+  
+    # Renumber the rownames
+  rownames(testFrame) <- NULL
+  # Questions 4 and 5: returns 51 rows and 5 columns; last 4 columns are numbers
+  return(testFrame)
+}
+readStates()
+
+## Step 3: Store and Explore the dataset
+# Question 6: Store the dataset into a dataframe called dfStates
+dfStates <- data.frame(readStates())
+dfStates
+# Question 7: Find the mean of July2011 data
+
+meanPop<-mean(dfStates$Jul2011)
+meanPop
+## Step 4: Find the state with the Highest Population
+# Question 8, part 1: What is the population of the state with the highest population?
+maxPop <- max(dfStates$Jul2011)
+maxPop
+# Question 8, part 2: What is the name of that state?
+
+index <- which.max(dfStates$Jul2011)
+maxPopName <- dfStates$stateName[index]
+maxPopName
+# Question 9: Sort the data, in increasing order, based on July2011 data
+sortedPop <- dfStates[order(dfStates$Jul2011),]
+sortedPop
+## Step 5: Explore the distribution of the states
+# Question 10: Write a function that takes two parameters (vector,number)
+myFunc <- function(a,b){
+  c<-length(a[a<b])
+  e<-c/length(a)
+  # Question 11: The function will return the percentage of elements in vector less than the number
+  return(e)
+}
+# Question 12: Vector has 5 elements, the number passed into the function is 2, result is 0.2
+TestingVector <- c(5:10)
+num <- 9
+
+myFunc(TestingVector,num)
+
+# Question 13: Test the function with the vector 'dfStates$Jul2011' and the mean of dfStates$Jul2011
+statesVector <- dfStates$Jul2011
+statesNumber <- mean(dfStates$Jul2011)
+
+myFunc(statesVector,statesNumber)
+
+

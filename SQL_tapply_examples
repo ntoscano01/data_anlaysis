@@ -1,0 +1,115 @@
+#Call Libraries
+#----------------------------------------------------------------
+#install libraries if not installed yet
+#install.packages("RCurl")
+#install.packages("RJSONIO")
+#install.packages("jsonlite")
+#install.packages("sqldf")
+#Call the libraries
+library("RCurl")
+library("RJSONIO")
+library("jsonlite")
+library("dplyr")
+library("tidyr")
+library("sqldf")
+#----------------------------------------------------------------
+#1: Load the data
+
+link<-'https://data.maryland.gov/api/views/pdvh-tf2u/rows.json?accessType=DOWNLOAD'
+
+JSONInput<-fromJSON("https://data.maryland.gov/api/views/pdvh-tf2u/rows.json?accessType=DOWNLOAD")
+
+JSONData<-JSONInput$data
+
+MyData<-data.frame(JSONData)
+
+str(MyData)
+View(MyData)
+
+MyData[,22] <- as.numeric(MyData[,22])
+str(MyData[,22])
+
+#----------------------------------------------------------------
+#Step 2: Clean the data
+
+MyData <- MyData[ -c(1:8)]
+
+namesOfColumns <-  c("CASE_NUMBER","BARRACK","ACC_DATE","ACC_TIME","ACC_TIME_CODE","DAY_OF_WEEK","ROAD","INTERSECT_ROAD",
+                     "DIST_FROM_INTERSECT","DIST_DIRECTION","CITY_NAME","COUNTY_CODE","COUNTY_NAME","VEHICLE_COUNT",
+                     "PROP_DEST","INJURY","COLLISION_WITH_1","COLLISION_WITH_2")
+
+colnames(MyData) <- namesOfColumns
+
+str(MyData)
+
+MyData [MyData  == ""] = NA
+
+MyData[,1] <- as.numeric(MyData[,1])
+MyData[,2] <- as.character(MyData[,2])
+MyData[,3] <- as.Date(MyData[,3])
+#MyData[,4] <- as.Date(MyData[,4])
+MyData[,5] <- as.character(MyData[,5])
+#MyData[,6] <- as.character(MyData[,6])
+MyData[,7] <- as.character(MyData[,7])
+MyData[,8] <- as.character(MyData[,8])
+MyData[,9] <- as.numeric(MyData[,9])
+MyData[,10] <- as.character(MyData[,10])
+MyData[,11] <- as.character(MyData[,11])
+MyData[,12] <- as.numeric(MyData[,12])
+MyData[,13] <- as.character(MyData[,13])
+MyData[,14] <- as.numeric(MyData[,14])
+#MyData[,16] <- as.numeric(MyData[,16])
+str(MyData)
+
+sum(is.null(MyData))
+
+sum(is.na(MyData))
+
+list_na <- colnames(MyData)[ apply(MyData, 2, anyNA) ]
+list_na
+
+MyData$DAY_OF_WEEK <- gsub(" ","", MyData$`DAY_OF_WEEK`)
+
+MyData$DIST_FROM_INTERSECT[is.na(MyData$DIST_FROM_INTERSECT)] <- mean(MyData$DIST_FROM_INTERSECT, na.rm = TRUE)
+MyData$VEHICLE_COUNT[is.na(MyData$VEHICLE_COUNT)] <- mean(MyData$VEHICLE_COUNT, na.rm = TRUE)
+round((MyData$VEHICLE_COUNT), 0)
+
+MyData<-na.omit(MyData)
+
+sum(is.na(MyData))
+
+list_na <- colnames(MyData)[ apply(MyData, 2, anyNA) ]
+list_na
+
+#----------------------------------------------------------------
+#Step 3: Understand the data using SQL (via SQLDF)
+
+#How many accidents happen on SUNDAY
+FirstQuery <- sqldf("select count(DAY_OF_WEEK) from MyData where DAY_OF_WEEK == 'SUNDAY'")
+FirstQuery
+
+#How many accidents had injuries (might need to remove NAs from the data)
+SecondQuery <- sqldf("select Count(INJURY) from MyData where INJURY == 'YES'")
+SecondQuery
+
+#List the injuries by day
+ThirdQuery <- sqldf("select Count(INJURY), DAY_OF_WEEK from MyData Group By DAY_OF_WEEK")
+ThirdQuery
+
+#----------------------------------------------------------------
+#Step 4: Understand the data using tapply
+
+#How many accidents happen on Sunday
+results <- tapply(MyData$DAY_OF_WEEK, MyData$DAY_OF_WEEK == 'SUNDAY',length)
+results
+
+#How many accidents had injuries 
+results <- tapply(MyData$INJURY, MyData$INJURY == 'YES',length)
+results
+
+#List the injuries by day
+
+x <- c(6,  16)
+
+results <- tapply(MyData$INJURY, list(MyData$INJURY, MyData$DAY_OF_WEEK),length)
+results

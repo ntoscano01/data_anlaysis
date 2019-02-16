@@ -19,7 +19,8 @@ knitr::opts_chunk$set(comment = NA)
 ```
 
 ```{r check for and install missing packages, message=FALSE, warning=FALSE, include=FALSE}
-packages = c("ggplot2", "GGally", "RColorBrewer","plotrix", "reshape", "gridExtra", "dplyr", "scales", "knitr", "rmarkdown", "memisc")
+packages = c("ggplot2", "GGally", "RColorBrewer","plotrix", "reshape", 
+             "gridExtra", "dplyr", "scales", "knitr", "rmarkdown", "memisc")
 package.check <- lapply(packages, FUN = function(x) {
   if (!require(x, character.only = TRUE)) {
     install.packages(x, dependencies = TRUE)
@@ -92,6 +93,7 @@ names(wine) can be used to observe the variables used in the dataset. The follow
 ```{r wine variables, echo=FALSE}
 print("The wine variables used in this study are:")
 names(wine)
+#represented by the column number of the variables
 #summary(wine[2:13])
 ```
 
@@ -121,8 +123,11 @@ head(wine,5)
 ### Exploded Pie Chart
 This pie chart provides an overview of the percantage that each variable represents in this dataset.  This chart provides a nice visual for looking at the variables contained in the dataset, but it doesn't give us much information of use.
 ```{r Exploded pie chart, echo=FALSE}
-slices <- c(2,3, 4,5,6,7,8,9,10,11,12,13) 
-lbls <- c("fixed.acidity","volatile.acidity","citric.acid" ,"residual.sugar","chlorides","free.sulfur.dioxide", "total.sulfur.dioxide","density","pH", "sulphates","alcohol","quality")
+#slices are represented by the column number of the variables, which are identified by the labels (lbls)
+slices <- c(2,3,4,5,6,7,8,9,10,11,12,13) 
+lbls <- c("fixed.acidity","volatile.acidity","citric.acid" ,"residual.sugar",
+          "chlorides","free.sulfur.dioxide", "total.sulfur.dioxide","density",
+          "pH", "sulphates","alcohol","quality")
 pct <- round(slices/sum(slices)*100)
 lbls <- paste(lbls, pct) # add percents to labels 
 lbls <- paste(lbls,"%",sep="") # ad % to labels 
@@ -134,6 +139,7 @@ pie(slices,labels = lbls, col=rainbow(length(lbls)),
 Instead of using a chart, we can explore the variables in this dataset on a marco level using a statisical summary.  The summary below provides a description of each variable in the dataset.  This numerical tabulation is useful, because we can refer back to it when we perform more micro level analysis later, to help us maintain a general baseline for each variable we look at.
 ```{r wine summary, echo=FALSE}
 print("The following is a statistical summary for red wine:")
+# represented by the column number of the variables
 summary(wine[2:13])
 ```
 
@@ -163,7 +169,8 @@ We will begin with univariate analysis.  Univariate analysis is the simplest for
 ##Univariate Analysis
 
 Based on my readings, my top 4 variables of interest are summarized next.  We can see that pH appears to be normally distributed, but the remaining 3 data points are skewed.
-```{r echo=FALSE, }
+```{r echo=FALSE}
+#We use ggplot to graph certain variables.  We store each graph as an object.  We then arrange the objects on a 2 column grid.
 Wp1<-ggplot(aes(x=pH), data = wine)+
    geom_histogram(color =I('black'),fill = I('#B22222'))+
   ggtitle('pH')
@@ -191,92 +198,111 @@ The following histograms are provided for each variable:
 
 ###Quality 
 ```{r quality wine, echo=FALSE}
-qplot(quality, main = "Wine", xlab = "Quality rating", ylab = "Count", binwidth = .5, data=wine, fill=I('#B22222'),col=I("#000000"))
+#qplot is a base function in R and can be used to draw quick visuals of data.
+qplot(quality, main = "Wine", xlab = "Quality rating", ylab = "Count", 
+      binwidth = .5, data=wine, fill=I('#B22222'),col=I("#000000"))
 ```
 ```{r summary wine quality, echo=FALSE}
 summary(wine$quality)
 paste("sd", sd(wine$quality))
 ```
+
 The distribution of quality appears to be normal with many wines at average quality (4-5) and fewer wines at low quality and high quality. We can see that the median and mean both hover near 6.0.  The standard deviation is about .81.
 
 ###Alcohol content
 ```{r alcohol wine, echo=FALSE}
-qplot(alcohol, main = "Wine", xlab = "Quality rating", ylab = "Count", binwidth = .25, data=wine, fill=I('#B22222'), col=I("#000000"))
+qplot(alcohol, main = "Wine", xlab = "Quality rating", ylab = "Count", 
+      binwidth = .25, data=wine, fill=I('#B22222'), col=I("#000000"))
 ```
 
 ```{r summary wine alcohol, echo=FALSE}
 summary(wine$alcohol)
 paste("sd", sd(wine$alcohol))
 ```
+
 The alcohol concentration distribution is right skewed. There is a tight concentration of of values between 9.5 and 11.  The median and mean hover around 10.20 and 10.42.  We can see that the standard deviation is just over 1.
 
 ###Volatile.acidity  
 ```{r volatile acidity wine, echo=FALSE}
-qplot(volatile.acidity, data=wine, main = "Wine", xlab = "Volatility rating", ylab = "Count", fill=I('#B22222'), binwidth = .01 ,col=I("#000000"))
+qplot(volatile.acidity, data=wine, main = "Wine", xlab = "Volatility rating", 
+      ylab = "Count", fill=I('#B22222'), binwidth = .01 ,col=I("#000000"))
 ```
 
 ```{r summary volatile acidity wine, echo=FALSE}
 summary(wine$volatile.acidity)
 ```
+
 We can see that volatility acidity distribution is right skewed.  Outliers between .99 ad 1.6 are clearly visible.
 
 ###Citric.acid  
 
 ```{r citric acid, echo=FALSE}
-qplot(citric.acid, data=wine, main = "Wine", xlab = "Citrict acid rating", ylab = "Count", fill=I('#B22222'), binwidth = .01, col=I("#000000"))
+qplot(citric.acid, data=wine, main = "Wine", xlab = "Citrict acid rating", 
+      ylab = "Count", fill=I('#B22222'), binwidth = .01, col=I("#000000"))
 ```
 ```{r summary citric acid,  echo=FALSE}
 summary(wine$citric.acid)
 ```
+
 Most wines have 0 $g/dm^3$ of citric acid. The distribution is right skewed with some ups and downs. We can see peaks at 0.250 and 0.500 which may hint at some bimodal behavior. A single wine appears far away on the right side with 1 $g/dm^3$ of citric acid.
 
 ### residual.sugar
 
 ```{r residual sugar, echo=FALSE}
-qplot(residual.sugar, data=wine, main = "Wine", xlab = "Sugar rating", ylab = "Count", fill=I('#B22222'), binwidth = .3, col=I("#000000"))
+qplot(residual.sugar, data=wine, main = "Wine", xlab = "Sugar rating", 
+      ylab = "Count", fill=I('#B22222'), binwidth = .3, col=I("#000000"))
 ```
 
 ```{r summary residual sugar, echo=FALSE}
 summary(wine$residual.sugar)
 ```
+
 The distribution of residual sugar has a median value of 2.2. The distribution is right skewed with a long tail in the right side. There are many small bars on the right side of the main peak.
 
 ###pH 
 ```{r pH, echo=FALSE}
-qplot(pH, data=wine, main = "Wine", xlab = "pH rating", ylab = "Count", fill=I('#B22222'), binwidth = .01, col=I("#000000"))
+qplot(pH, data=wine, main = "Wine", xlab = "pH rating", ylab = "Count", 
+      fill=I('#B22222'), binwidth = .01, col=I("#000000"))
 
 ```
 
 ```{r summary pH, echo=FALSE}
 summary(wine$pH)
 ```
+
 The distribution seems symmetrical or could be also considered bimodal with both peaks very close to each other. There seems to be a local maximum at around 3.2 and then another one at 3.35.  The median value is 3.31, and most wines have a pH between 3.21 and 3.4.
 
 ###density
 
 ```{r density, echo=FALSE}
-qplot(density, data=wine, main = "Wine", xlab = "Density", ylab = "Count", fill=I('#B22222'), binwidth = .001, col=I("#000000"))
+#using qplot for a quick base plot in R.  We can fill the curves using 'fill'.
+qplot(density, data=wine, main = "Wine", xlab = "Density", ylab = "Count", 
+      fill=I('#B22222'), binwidth = .001, col=I("#000000"))
 
 ```
 ```{r summary density, echo=FALSE}
 summary(wine$density)
 ```
+
 The density of wines varies few, with most of the values between 0.9956 and 0.9967. The distribution is almost symmetric and has median value of 0.9968. The density if close to the density of water (1 $g/cm^3$ at 4 $^\circ C$).
 
 ###chlorides
 
 ```{r chlorides, echo=FALSE, }
-qplot(chlorides, data=wine, main = "Wine", xlab = "Chloride", ylab = "Count", fill=I('#B22222'), binwidth = .01, col=I("#000000"))+ xlim(.012, .2)
+qplot(chlorides, data=wine, main = "Wine", xlab = "Chloride", ylab = "Count", 
+      fill=I('#B22222'), binwidth = .01, col=I("#000000"))+ xlim(.012, .2)
 ```
 
 ```{r summary chlorides, echo=FALSE}
 summary(wine$chlorides)
 ```
+
 The amount of chlorides in the wines has a median value of 0.079 $g/dm^3$. The distribution with looks normal around its main peak but has a very long right tail, with small counts of wines with values until 0.611 $g/dm^3$
 
 ###free.sulfur.dioxide 
 ```{r free sulfur dioxide, echo=FALSE}
-qplot(free.sulfur.dioxide, data=wine, main = "Wine", xlab = "Free Sulfur Dioxide", ylab = "Count", fill=I('#B22222'), binwidth=10, col=I("#000000"))
+qplot(free.sulfur.dioxide, data=wine, main = "Wine", xlab = "Free Sulfur Dioxide", 
+      ylab = "Count", fill=I('#B22222'), binwidth=10, col=I("#000000"))
 ```
 ```{r summary free sulfur dioxide, echo=FALSE}
 summary(wine$free.sulfur.dioxide)
@@ -293,12 +319,14 @@ qplot(total.sulfur.dioxide, data=wine, main = "Wine", xlab = "Total Sulfur Dioxi
 ```{r summary total sulfur dioxide, echo=FALSE}
 summary(wine$total.sulfur.dioxide)
 ```
+
 The distribution of total sulfur dioxide is right skewed with a median value of 38 $mg/dm^3$. On the right tail we can see a local maximum near 80. There's a gap between 165 and 278 with only two wines with a concentration greater than or equal to 278.
 
 ###sulphates
 
 ```{r sulphates, echo=FALSE}
-qplot(sulphates, data=wine, main = "Wine", xlab = "Sulphates", ylab = "Count", fill=I('#B22222'), col=I("#000000"))
+qplot(sulphates, data=wine, main = "Wine", xlab = "Sulphates", ylab = "Count", 
+      fill=I('#B22222'), col=I("#000000"))
 ```
 
 ```{r summary sulphates, echo=FALSE}
@@ -311,7 +339,7 @@ The median value of sulphates is 0.62 and most wines have a concentration betwee
 Bivariate analysis is the simultaneous analysis of two variables (attributes). It explores the concept of relationship between two variables, whether there exists an association and the strength of this association, or whether there are differences between two variables and the significance of these differences. -https://www.saedsayad.com/bivariate_analysis.htm
 
 The first analysis we will start with is a correlation matrix.  This gives us a quick view of relationships between the variables.
-```{r echo=FALSE}
+```{r corr matrix, echo=FALSE}
 #ggpairs(wine, columns = c(2:13), columnLabels = c("f.acidity", "v.acidity", "c.acid", "res.sugar", "chlorides", "free.SO2", "total.SO2", "density", "pH", "sulphates", "alcohol","quality")) + theme(axis.title.y = element_text(size = 8))
 ggscatmat(wine, columns = 2:13) + theme_grey(base_size=7)
 ```
@@ -331,7 +359,7 @@ The biggest negative corrlation coefficients are:
 
 Below we can look at these relationships in a bit more detail.  
 citric acid and fixed acidity:
-```{r echo=FALSE}
+```{r eacid v. acidity, cho=FALSE}
 ggplot(wine, aes(citric.acid, fixed.acidity)) + 
   geom_jitter(alpha=0.2) + 
   stat_smooth(method = "lm", formula = y ~ x)
@@ -340,7 +368,7 @@ ggplot(wine, aes(citric.acid, fixed.acidity)) +
 This chart shows that as citric acid increases than fixed acidity increases.
 
 Fixed acidity and density:
-```{r echo=FALSE}
+```{r fixed.acidity v. density, echo=FALSE}
 ggplot(wine, aes(fixed.acidity, density)) + 
   geom_jitter(alpha=0.2) + 
   stat_smooth(method = "lm", formula = y ~ x)
@@ -349,35 +377,43 @@ ggplot(wine, aes(fixed.acidity, density)) +
 This chart shows that fixed acidity increase as density increases.
 
 Fixed alcohol and quality:
-```{r echo=FALSE}
+```{r alcohol and quality, echo=FALSE}
 ggplot(wine, aes(quality,alcohol)) + 
   geom_point(alpha=0.2) +  
   stat_smooth(method = "lm", formula = y ~ x)
+```
+
+Since these values are returned as discrete values, we will need to change our graph to a boxplot.  This will show how dense the section of the value is.
+
+```{r Boxplot of alcohol vs. quality , echo=FALSE}
+# Boxplot of alcohol vs. quality 
+boxplot(alcohol~quality,data=wine, main="Alcohol vs. Quality", 
+   xlab="Quality", ylab="Alcohol")
 ```
 
 And finaly, quality increases with alcohol.
 
 Now let's look at negative correlations:
 We are going to list all of these at once, as we would expect negative relatoinships to show inverse plots.
-```{r echo=FALSE}
+```{r inverse plots, echo=FALSE}
 ggplot(wine, aes(pH,fixed.acidity)) + 
   geom_point(alpha=0.2) +  
   stat_smooth(method = "lm", formula = y ~ x)
 ```
 
-```{r echo=FALSE}
+```{r volatile.acidity v. citric.acid, echo=FALSE}
 ggplot(wine, aes(volatile.acidity,citric.acid)) + 
   geom_point(alpha=0.2) +  
   stat_smooth(method = "lm", formula = y ~ x)
 ```
 
-```{r echo=FALSE}
+```{r pH v. citric.acid, echo=FALSE}
 ggplot(wine, aes(pH,citric.acid)) + 
   geom_point(alpha=0.2) +  
   stat_smooth(method = "lm", formula = y ~ x)
 ```
 
-```{r echo=FALSE}
+```{r alcohol v. quality, echo=FALSE}
 ggplot(wine, aes(x=alcohol, fill=factor(quality))) + 
   geom_density(alpha=0.2)
 ```
@@ -385,7 +421,7 @@ ggplot(wine, aes(x=alcohol, fill=factor(quality))) +
 This chart provides a different perspective on correlation.  We can see that alcohol content around 5-8 seems to have the highest quality rating.
 
 Here are the summary statistics for alcohol content at each quality level:
-```{r echo=FALSE}
+```{r alcohol, echo=FALSE}
 by(wine$alcohol, factor(wine$quality), summary)
 ```
 
@@ -394,6 +430,7 @@ Multivariate analysis is a set of techniques used for analysis of data sets that
 
 In this section we will visualize the relationship between my top 4 variables of interest, which are sugar, alcohol, sulphates and pH:
 ```{r echo=FALSE}
+#ggplot package is being used in this section to create more complex graphs.  
 ggplot(wine, aes(x=residual.sugar, y=alcohol, size = alcohol, 
                  color=factor(quality))) + 
   geom_point() + 
@@ -401,33 +438,37 @@ ggplot(wine, aes(x=residual.sugar, y=alcohol, size = alcohol,
 ```
 
 Let's try summarize using a contour plot:
-```{r echo=FALSE}
+```{r alcohol v. sugar, echo=FALSE}
 ggplot(wine, aes(x = alcohol, y = residual.sugar, 
                  colour=factor(wine$quality))) + 
   geom_density2d(bins=2) + 
   scale_color_brewer() + 
   geom_point(color="black", alpha=0.1) 
 ```
+
 This chart shows that higher quality wines ten to have higher levels of alcohol in them, but sugar remains most concentrated between 1.5 and 2.  So dry wines appear to be the highest quality vs. alcohol.  Outliers exist in this dataset.
 
-```{r echo=FALSE}
+```{r sulphate v. sugar, echo=FALSE}
 ggplot(wine, aes(x = sulphates, y = residual.sugar, 
                  colour=factor(wine$quality))) + 
   geom_density2d(bins=2) + 
   scale_color_brewer() + 
   geom_point(color="black", alpha=0.1) 
 ```
+
 This shows higher quality wines tend to have sulphates between .5 and 1.0 and sugars below 4, but above 1.5.
-```{r echo=FALSE}
+
+```{r sugar v. pH, echo=FALSE}
 ggplot(wine, aes(x = residual.sugar, y = pH, 
                  colour=factor(wine$quality))) + 
   geom_density2d(bins=2) + 
   scale_color_brewer() + 
   geom_point(color="black", alpha=0.1) 
 ```
+
 This shows heavy concentraiton of pH between 3.2 and 3.5 vs. sugar content. Clear outliers can be identified in this dataset.
 
-```{r echo=FALSE}
+```{r alcohol v. pH,  echo=FALSE}
 ggplot(wine, aes(x = alcohol, y = pH, 
                  colour=factor(wine$quality))) + 
   geom_density2d(bins=2) + 
@@ -440,7 +481,77 @@ This shows higer quality wines tend to have alcohol content between 10.5 and 13.
 \newpage
 Final Plots and Summary
 ==================== 
+# Final Plots and Summary
 
+One of the benefits of R and the open source community is that there is a large community of users, with whom you can share code.  For my final plots summary I used Kaggle.com as an example for summary plots.  The extended code for the plots below can be found at: https://www.kaggle.com/singh123/red-wine-analysis-r/code.  The Kaggle analysis has a much more in-depth analysis and code structure that more advance R users may appraciate and be abel to use in other research.  
+
+***Note: The research on Kaggle created a new variable called sugar_acid_ratio.  This ratio groups wines into categories: Dry, Medium Dry, Medium Sweet, and Sweet.  I did not use this variable in my research, but had to calculate the ratio for this section.***
+
+##Plot One 
+
+For the first final plot, we willdo a comparison is done between the alcohol and pH to understand the diffrence between the two variants to compare the quality of the wine.
+
+```{r echo=FALSE}
+wine$sugar_acid_ratio<-(wine$residual.sugar/(wine$volatile.acidity+wine$fixed.acidity+wine$citric.acid))
+head(wine$sugar_acid_ratio)
+
+wine$ratio_scale <- cut(wine$sugar_acid_ratio, 
+                        breaks = c(0,1,2,4,8), 
+                        labels = c('Dry', 'Medium Dry', 'Medium Sweet', 'Sweet'), 
+                        right = FALSE)
+summary(wine$ratio_scale)
+```
+
+```{r echo=FALSE, }
+s1<-ggplot(aes(x=quality,y=alcohol),
+       data = wine)+
+   geom_line(stat='summary',fun.y=median)+
+  ggtitle('quality vs alcohol (%vol) median')
+s2<-ggplot(aes(x=quality,y=pH),
+       data = wine)+
+   geom_line(stat='summary',fun.y=median)+
+  ggtitle('quality vs  pH median')
+s3<- ggplot(aes(x=quality,y=sugar_acid_ratio),
+       data = wine)+
+   geom_line(stat='summary',fun.y=median)+
+  ggtitle('quality vs  sugar_acid_ratio median')
+
+grid.arrange(s1,s2,s3, ncol=2)
+
+```
+
+This graphic visualizes the relationships between alcohol content and the quality (expressed as percent) of red wine.  The quality percent of the red wine is increasing with increase in alcohol content while the quality is decreasing with increase in pH and as the sugar_acid_ratio is increasing the wine quality is also increasing.
+
+##Plot Two
+
+```{r echo=FALSE, }
+ggplot(aes(x=quality, y=alcohol), 
+        data = wine) +
+  geom_jitter( alpha = .5)  +
+  geom_boxplot( alpha = .5,color = 'blue')+
+  stat_summary(fun.y = "mean", 
+               geom = "point", 
+               color = "red", 
+               shape = 8, 
+               size = 4)+ggtitle(' Alcohol (% by volume) content with best quality Red Wine')
+```
+
+
+##Description Two
+Again this chart was provided by Kaggle.  I really like the summary aesthetic that this analyst did.  The code was written in a way that this could be used across different wine variable sets, such as white wine.  The above plot indicates that the quality is increasing with the increase in alcohol content and it starts decreasing after alcohol content 11.  From a different perspective, this chart indicates that there is a diminishing effect or relationship between these two variabels that can be represented on a normal bell curve.
+
+##Plot Three
+
+```{r echo=FALSE,}
+
+ggplot(aes(x=pH),data =wine) + 
+  geom_density()+
+  facet_wrap(~quality)+
+  ggtitle('pH values relationship with Quality')
+```
+This chart plots pH to quality rating.  The important obeservation from these charts are that Red wine tends to exhibit a higher pH value density quality rating till 7.
+
+------
 ###Reflections
 This project was a good opportunity to apply R statisical analysis and utilize R visualization capabilities.  Also, this eexercise provides a good example of how a script could be used to analyze multiple sets of data.  This same code strcuture could be used to analyze the white wine dataset.
 
@@ -448,7 +559,7 @@ This project was a good opportunity to apply R statisical analysis and utilize R
 My first challenge was understanding the dataset.  Because I am not familiar with wine or chemistry, I had to read about the wine data in other sources to udnerstand what plots were meaningful and what variables could be compared.  Another challenge I faced was deciding what plots, stats, and other analytics were useful for this project.  Thsi project could quickly become overloaded with analytics that could clutter and reduce the overal value of the end product.  Adding color to plots became and important attirubte to helping distinguish variables.  
 
 ###Recommendations
-If time were given, I would run the white wine dataset through the same plots and analysis to see what the result would be.  I would then compare the white wine and red wine results to see what difference occur between the two types of wine.  If provide, another interesting dataset to intersect with this analysis would be sales data on red and white wines.  I would like to see if certain mixes of variables sell better than others and at what price points.  Is there really a difference between a cheap wine and an expensive wine and can we quantity what that difference is?
+If time were given, I would run the white wine dataset through the same plots and analysis to see what the result would be.  I would then compare the white wine and red wine results to see what difference occur between the two types of wine.  If provided, another interesting dataset to intersect with this analysis would be sales data on red and white wines.  I would like to see if certain mixes of variables sell better than others and at what price points.  I did not add any new variables to this project, but I do like the added variable the kaggle analysis provided.  Catogorizing the wines into Dry and Sweet ranges is a more familiar metric to the average consumer.  This is also a metric that could be used for business anlaysis and sales data as consumers are used to buying wines on a dry and sweet scale.  My next question would be: Is there really a difference between a cheap wine and an expensive wine and can we quantity what that difference is?
 
 \newpage
 Sources:
@@ -466,6 +577,3 @@ The two datasets are related to red and white variants of the Portuguese "Vinho 
 * Number of Attributes: 11 + output attribute.
 
 Note: white wine is not used in this analysis. The same code can be used to analyze the whie wine dataset, simply by switching the data loaded. Individual analysis and comments will differ and need to be updated.
-
-
-

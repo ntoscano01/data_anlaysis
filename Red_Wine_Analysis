@@ -1,7 +1,7 @@
 ---
 title: "Red Wine Analysis"
 author: "Nicholas Toscano"
-date: "2/25/2019"
+date: "1/26/2019"
 output:
   html_document:
     toc: yes
@@ -49,7 +49,7 @@ library(plotrix)
 
 ```{r load data, include=FALSE}
 getwd()
-setwd("/Users/nick/Documents/Udacity/Project_3")
+setwd("WORKING_DIRECTORY")
 #Choose between red or white wine
 wine <- read.csv("wineQualityReds.csv")
 ```
@@ -512,33 +512,40 @@ Final Plots and Summary
 
 ##Plot One 
 
-```{r 1,  echo=FALSE}
+```{r alcohol v. pH 2,  echo=FALSE}
 ggplot(wine, aes(x = alcohol, y = pH, 
                  colour=factor(wine$quality))) + 
+  ggtitle('Wine Quality vs. pH and Alcohol Content') +
+   xlab("Alcohol (%)") + ylab("pH Scale")+
   geom_density2d(bins=2) + 
   scale_color_brewer("Wine\nQuality") + 
   geom_point(color="black", alpha=0.1) 
 ```
 
-This shows higer quality wines tend to have alcohol content between 10.5 and 13.5 and pH levels between 3.2 and 3.5.
+This shows higer quality wines tend to have alcohol content between 10.5 and 13.5 and pH levels between 3.2 and 3.5.  Note: pH describes how acidic or basic a wine is on a scale from 0 (very acidic) to 14 (very basic); most wines are between 3-4 on the pH scale.
 
 ##Plot Two
 
-```{r 2, echo=FALSE}
+```{r 5, echo=FALSE}
 #ggplot package is being used in this section to create more complex graphs.  
 ggplot(wine, aes(x=residual.sugar, y=alcohol, 
                  color = factor(quality))) + 
+   ggtitle('Quality Score vs. Alcohol Content and Sugar') +
+   xlab("Residual Sugar (grams/liter)") + ylab("Alcohol (%)")+
   xlim(1, 5.5) +
   geom_point(alpha=.4) + 
   scale_color_brewer(palette = "Set1", "Quality\nScore")
 ```
 
-I have removed some of the outliers by limiting the X axis between 1 and 5.5.  This plot helps characterize quality score, using the sugar and alcohol values.  You can see that the greatest density of scores are between 1.5 and 3 on the x axis.  
+I have removed some of the outliers by limiting the X axis between 1 and 5.5.  This plot helps characterize quality score, using the sugar and alcohol values.  You can see that the greatest density of scores are between 1.5 and 3 on the x axis.  Note: residual sugar is the amount of sugar remaining after fermentation stops, it's rare to find wines with less than 1 gram/liter and wines with greater than 45 grams/liter are considered sweet
+
 
 ##Plot Three
 
-```{r 3, echo=FALSE}
+```{r visualize distribution in variables wine 2, echo=FALSE}
 ggplot(meltData, aes(x = value)) + 
+   ggtitle('Data Distribution') +
+   xlab("Value") + ylab("Count")+
 facet_wrap(~variable,scales = "free_x") + 
 geom_histogram()
 ```
@@ -552,7 +559,7 @@ One of the benefits of R and the open source community is that there is a large 
 
 For the first final plot, we willdo a comparison is done between the alcohol and pH to understand the diffrence between the two variants to compare the quality of the wine.
 
-```{r 4, echo=FALSE}
+```{r echo=FALSE}
 wine$sugar_acid_ratio<-(wine$residual.sugar/(wine$volatile.acidity+wine$fixed.acidity+wine$citric.acid))
 head(wine$sugar_acid_ratio)
 
@@ -563,7 +570,7 @@ wine$ratio_scale <- cut(wine$sugar_acid_ratio,
 summary(wine$ratio_scale)
 ```
 
-```{r 5, echo=FALSE, }
+```{r echo=FALSE, }
 s1<-ggplot(aes(x=quality,y=alcohol),
        data = wine)+
    geom_line(stat='summary',fun.y=median)+
@@ -584,7 +591,7 @@ grid.arrange(s1,s2,s3, ncol=2)
 This graphic visualizes the relationships between alcohol content and the quality (expressed as percent) of red wine.  The quality percent of the red wine is increasing with increase in alcohol content while the quality is decreasing with increase in pH and as the sugar_acid_ratio is increasing the wine quality is also increasing.
 
 
-```{r 6, echo=FALSE, }
+```{r echo=FALSE, }
 ggplot(aes(x=quality, y=alcohol), 
         data = wine) +
   geom_jitter( alpha = .5)  +
@@ -598,7 +605,7 @@ ggplot(aes(x=quality, y=alcohol),
 
 Again this chart was provided by Kaggle.  I really like the summary aesthetic that this analyst did.  The code was written in a way that this could be used across different wine variable sets, such as white wine.  The above plot indicates that the quality is increasing with the increase in alcohol content and it starts decreasing after alcohol content 11.  From a different perspective, this chart indicates that there is a diminishing effect or relationship between these two variabels that can be represented on a normal bell curve.
 
-```{r 7, echo=FALSE,}
+```{r echo=FALSE,}
 
 ggplot(aes(x=pH),data =wine) + 
   geom_density()+
